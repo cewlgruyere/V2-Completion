@@ -1,0 +1,18 @@
+[project]
+name = "v2-completion"
+version = "0.0.1"
+
+dependencies = []
+
+description = "This BallsDex extensions overrides the V3 completion UI and reverts it back to the old one from V2. All credits go to the BallsDex team for making the old command (and new), and also the utils used by it. :3"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+
+authors = [ { name = "gruyere", email = "gruyere@remicrodex.com"} ]
+
+readme = "README.md"
+
+[project.urls]
+Repository = "https://github.com/cewlgruyere/V2-Completion"
+Documentation = "https://github.com/cewlgruyere/V2-Completion#readme"
+Issues = "https://github.com/cewlgruyere/V2-Completion/issues"
