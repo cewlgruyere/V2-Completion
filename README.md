@@ -8,7 +8,7 @@ Installation:
 ```toml
 [[ballsdex.packages]]
 location = "git+https://github.com/cewlgruyere/V2-Completion.git@v0.0.1"
-path = "v2_comp"
+path = "v2_completion"
 enabled = true
 ```
 Paste this in the `config/extra.toml` folder. If you dont have it, create it and paste this in.
