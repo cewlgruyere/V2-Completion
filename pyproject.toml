@@ -1,5 +1,5 @@
 [project]
-name = "v2-completion"
+name = "v2_completion"
 version = "0.0.1"
 
 dependencies = []
