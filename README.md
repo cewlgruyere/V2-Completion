@@ -7,7 +7,7 @@ This BallsDex extension overrides the V3 completion command, and replaces it wit
 Installation:
 ```toml
 [[ballsdex.packages]]
-location = "git+https://github.com/cewlgruyere/V2-Completion.git@v0.0.1"
+location = "git+https://github.com/cewlgruyere/V2-Completion.git@v0.0.2"
 path = "v2_completion"
 enabled = true
 ```
