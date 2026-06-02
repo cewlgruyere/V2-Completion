@@ -178,7 +178,7 @@ class V2UI(commands.Cog):
     async def cog_load(self):
         await self.bot.wait_until_ready()
 
-        group = self.bot.tree.get_command("balls")
+        group = self.bot.tree.get_command(settings.balls_slash_name)
 
         if group and isinstance(group, app_commands.Group):
             group.remove_command("completion")
