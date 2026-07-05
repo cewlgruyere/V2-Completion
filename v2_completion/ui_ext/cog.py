@@ -6,10 +6,16 @@ from discord.ext import commands
 from asgiref.sync import sync_to_async
 from ballsdex.core.utils.sorting import FilteringChoices, SortingChoices, filter_balls, sort_balls
 from ballsdex.core.utils.transformers import (
+    BallEnabledTransform,
+    BallGroupTransform,
+    BallInstanceTransform,
+    EconomyTransform,
+    RegimeTransform,
     SpecialEnabledTransform,
+    TradeCommandType,
 )
 from ballsdex.core.utils.utils import inventory_privacy, is_staff
-from bd_models.models import BallInstance, Player,balls
+from bd_models.models import BallInstance, Player, balls, groups
 from settings.models import settings
 
 from .paginator import FieldPageSource, Pages
@@ -31,7 +37,11 @@ class V2UI(commands.Cog):
         user: discord.User | None = None,
         special: SpecialEnabledTransform | None = None,
         filter: FilteringChoices | None = None,
+        regime: RegimeTransform | None = None,
+        economy: EconomyTransform | None = None,
+        group: BallGroupTransform | None = None,
         duplicates: bool = False,
+        ephemeral: bool = False,
     ):
         """
         Show your current completion of the BallsDex.
@@ -44,12 +54,26 @@ class V2UI(commands.Cog):
             The special you want to see the completion of
         filter: FilteringChoices
             Filter the list by a specific filter.
+        regime: Regime
+            The regime you want to see the completion of
+        economy: Economy
+            The economy you want to see the completion of
+        group: BallGroup
+            The group you want to see the completion of
         duplicates: bool
             Show the completion of duplicates.
+        ephemeral: bool
+            Whether or not to send the command ephemerally.
         """
         user_obj = user or interaction.user
         await interaction.response.defer(thinking=True)
         extra_text = f"{special.name} " if special else ""
+        if regime:
+            extra_text += f"{regime.name} "
+        if economy:
+            extra_text += f"{economy.name} "
+        if group:
+            extra_text += f"{group.name} "
         if user is not None:
             try:
                 player = await Player.objects.aget(discord_id=user_obj.id)
@@ -87,6 +111,19 @@ class V2UI(commands.Cog):
                 for x, y in balls.items()
                 if y.enabled and (special.end_date is None or y.created_at is None or y.created_at < special.end_date)
             }
+
+        if regime:
+            filters["ball__regime"] = regime
+            bot_countryballs = {x: y for x, y in bot_countryballs.items() if balls[x].regime_id == regime.pk}
+
+        if economy:
+            filters["ball__economy"] = economy
+            bot_countryballs = {x: y for x, y in bot_countryballs.items() if balls[x].economy_id == economy.pk}
+
+        if group:
+            filters["ball__groups"] = group
+            group_ball_ids = {ball.pk for ball in groups[group.pk].balls} if group.pk in groups else set()
+            bot_countryballs = {x: y for x, y in bot_countryballs.items() if x in group_ball_ids}
 
         if filter:
             query = filter_balls(filter, BallInstance.objects.filter(**filters), interaction.guild_id)
@@ -163,10 +200,13 @@ class V2UI(commands.Cog):
         source = FieldPageSource(entries, per_page=5, inline=False, clear_description=False)
 
         special_str = f" ({special.name})" if special else ""
+        regime_str = f" ({regime.name})" if regime else ""
+        economy_str = f" ({economy.name})" if economy else ""
+        group_str = f" ({group.name})" if group else ""
         original_catcher_string = " " + filter.value.replace("_", " ") + " " if filter else ""
         duplicates_str = " duplicates" if duplicates else ""
         source.embed.description = (
-            f"{settings.bot_name}{original_catcher_string}{special_str}{duplicates_str} progression: "
+            f"{settings.bot_name}{original_catcher_string}{special_str}{regime_str}{economy_str}{group_str}{duplicates_str} progression: "
             f"**{round(len(owned_countryballs) / len(bot_countryballs) * 100, 1)}%**"
         )
         source.embed.colour = discord.Colour.blurple()
