@@ -66,7 +66,7 @@ class V2UI(commands.Cog):
             Whether or not to send the command ephemerally.
         """
         user_obj = user or interaction.user
-        await interaction.response.defer(thinking=True)
+        await interaction.response.defer(thinking=True, ephemeral=ephemeral)
         extra_text = f"{special.name} " if special else ""
         if regime:
             extra_text += f"{regime.name} "
